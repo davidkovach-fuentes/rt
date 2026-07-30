@@ -13,7 +13,7 @@ if ! command -v curl >/dev/null 2>&1; then
     exit 1
 fi
 
-repo="atlas-brown/rt"
+repo="davidkovach-fuentes/rt"
 branch="${RT_BRANCH:-main}"
 bin_name="rt"
 install_dir="${HOME}/.local/bin"

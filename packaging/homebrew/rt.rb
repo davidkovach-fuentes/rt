@@ -7,6 +7,8 @@ class Rt < Formula
   # curl -sL "https://github.com/atlas-brown/rt/releases/download/v0.1.0/rt-0.1.0.tar.gz" | shasum -a 256
   sha256 ''
 
+  depends_on 'docker'
+
   def install
     bin.install 'scripts/run-in-container.sh' => 'rt'
     bin.install_symlink 'rt' => 'rti'

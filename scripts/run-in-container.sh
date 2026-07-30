@@ -3,7 +3,7 @@
 set -eu
 
 image="${RT_IMAGE:-rt}"
-image_remote="${RT_IMAGE_REMOTE:-ghcr.io/atlas-brown/rt:latest}"
+image_remote="${RT_IMAGE_REMOTE:-ghcr.io/davidkovach-fuentes/rt:latest}"
 runtime="${RT_RUNTIME:-docker}"
 
 if ! command -v "$runtime" >/dev/null 2>&1; then
