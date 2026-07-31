@@ -3,8 +3,8 @@ class Rt < Formula
   homepage 'https://github.com/atlas-brown/rt'
   version '0.1.0'
   license :cannot_represent
-  url "https://github.com/atlas-brown/rt/releases/download/v#{version}/rt-#{version}.tar.gz"
-  # curl -sL "https://github.com/atlas-brown/rt/releases/download/v0.1.0/rt-0.1.0.tar.gz" | shasum -a 256
+  url "https://github.com/atlas-brown/rt/archive/refs/tags/v#{version}.tar.gz"
+  # curl -sL "https://github.com/atlas-brown/rt/archive/refs/tags/v0.1.0.tar.gz" | shasum -a 256
   sha256 ''
 
   depends_on 'docker'
