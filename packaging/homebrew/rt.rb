@@ -2,12 +2,13 @@ class Rt < Formula
   desc 'Overlay type system for Unix shell pipelines'
   homepage 'https://github.com/atlas-brown/rt'
   version '0.1.0'
+  # TODO: replace fields with atlas/rt
+  url 'https://github.com/davidkovach-fuentes/rt/archive/refs/tags/v0.1.0.tar.gz'
+  # url 'https://github.com/atlas-group/rt/archive/refs/tags/v0.1.0.tar.gz'
+  sha256 '1d93946042dd1b50969e8862897d633e939f630c5ef7fa33c44e2f3ee238d28b'
   license :cannot_represent
-  url "https://github.com/atlas-brown/rt/archive/refs/tags/v#{version}.tar.gz"
-  # curl -sL "https://github.com/atlas-brown/rt/archive/refs/tags/v0.1.0.tar.gz" | shasum -a 256
-  sha256 ''
 
-  depends_on 'docker'
+  depends_on 'docker' => :test
 
   def install
     bin.install 'scripts/run-in-container.sh' => 'rt'

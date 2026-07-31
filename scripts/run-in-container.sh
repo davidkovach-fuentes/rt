@@ -2,8 +2,8 @@
 
 set -eu
 
-image="${RT_IMAGE:-rt}"
 image_remote="${RT_IMAGE_REMOTE:-ghcr.io/davidkovach-fuentes/rt:latest}"
+image="${RT_IMAGE:-$image_remote}"
 runtime="${RT_RUNTIME:-docker}"
 
 if ! command -v "$runtime" >/dev/null 2>&1; then
@@ -27,6 +27,7 @@ if ! "$runtime" image inspect "$image" >/dev/null 2>&1; then
         echo "      export RT_IMAGE=rt" >&2
         exit 1
     fi
+    image="$image_remote"
 fi
 
 # Remember how many arguments were in argv at this point
@@ -51,20 +52,22 @@ done
 set -- "$@" "$image"
 
 # Loop 2: build the rt args
-argv=$init_argv
-for arg; do
-    argv=$((argv - 1))
+if [ "$init_argv" -gt 0 ]; then
+    argv=$init_argv
+    for arg; do
+        argv=$((argv - 1))
 
-    if [ -f "$arg" ]; then
-        arg="$(realpath "$arg")"
-    fi
-    
-    set -- "$@" "$arg"
+        if [ -f "$arg" ]; then
+            arg="$(realpath "$arg")"
+        fi
 
-    if [ "$argv" -eq 0 ]; then
-        break
-    fi
-done
+        set -- "$@" "$arg"
+
+        if [ "$argv" -eq 0 ]; then
+            break
+        fi
+    done
+fi
 
 # Pop all initial args
 shift "$init_argv"
