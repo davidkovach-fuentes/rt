@@ -191,10 +191,10 @@ Make sure `~/.local/bin` is on your `PATH`. Requires [Docker](https://docs.docke
 ### brew
 
 ```sh
-brew install atlas-brown/rt/rt
+brew tap atlas-brown/tap
+brew install rt
 ```
 
-This installs thin `rt` and `rti` wrappers that run Rt in Docker.
 Requires [Docker](https://docs.docker.com/get-docker/).
 
 ### deb
@@ -205,7 +205,6 @@ Download the `.deb` from [GitHub Releases](https://github.com/atlas-brown/rt/rel
 sudo apt install ./rt_*.deb
 ```
 
-This installs thin `rt` and `rti` wrappers that run Rt in Docker.
 Requires [Docker](https://docs.docker.com/get-docker/).
 
 ### rpm
@@ -216,7 +215,6 @@ Download the `.rpm` from [GitHub Releases](https://github.com/atlas-brown/rt/rel
 sudo dnf install ./rt-*.rpm
 ```
 
-This installs thin `rt` and `rti` wrappers that run Rt in Docker.
 Requires [Docker](https://docs.docker.com/get-docker/).
 
 ### Build from source
