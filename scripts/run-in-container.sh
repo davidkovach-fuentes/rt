@@ -2,7 +2,7 @@
 
 set -eu
 
-image_remote="${RT_IMAGE_REMOTE:-ghcr.io/davidkovach-fuentes/rt:latest}"
+image_remote="${RT_IMAGE_REMOTE:-ghcr.io/atlas-brown/rt:latest}"
 image="${RT_IMAGE:-$image_remote}"
 runtime="${RT_RUNTIME:-docker}"
 
