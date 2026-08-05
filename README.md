@@ -197,26 +197,6 @@ brew install rt
 
 Requires [Docker](https://docs.docker.com/get-docker/).
 
-### deb
-
-Download the `.deb` from [GitHub Releases](https://github.com/atlas-brown/rt/releases), then:
-
-```sh
-sudo apt install ./rt_*.deb
-```
-
-Requires [Docker](https://docs.docker.com/get-docker/).
-
-### rpm
-
-Download the `.rpm` from [GitHub Releases](https://github.com/atlas-brown/rt/releases), then:
-
-```sh
-sudo dnf install ./rt-*.rpm
-```
-
-Requires [Docker](https://docs.docker.com/get-docker/).
-
 ### Build from source
 
 If you'd rather run natively, Rt uses [uv](https://docs.astral.sh/uv/) for
