@@ -188,6 +188,15 @@ curl -fsSL https://raw.githubusercontent.com/atlas-brown/rt/main/scripts/install
 This downloads a thin `rt` wrapper to `~/.local/bin` that runs Rt in Docker.
 Make sure `~/.local/bin` is on your `PATH`. Requires [Docker](https://docs.docker.com/get-docker/).
 
+### brew
+
+```sh
+brew tap atlas-brown/tap
+brew install rt
+```
+
+Requires [Docker](https://docs.docker.com/get-docker/).
+
 ### Build from source
 
 If you'd rather run natively, Rt uses [uv](https://docs.astral.sh/uv/) for
