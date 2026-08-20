@@ -1,0 +1,83 @@
+name: Build and Release Packages
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+env:
+  TOOL: ${{ github.event.repository.name }}
+  DESC: An overlay type system for shell pipelines
+  VERSION: ${{ github.event.release.tag_name }}
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ruby ruby-dev build-essential rpm
+          sudo gem install --no-document fpm
+
+      - name: Build packages
+        run: |
+          VERSION="${VERSION#v}" \
+          REPO="${{ github.repository }}" \
+          RT_PACKAGE_MAINTAINER="atlas@brown.edu" \
+          bash packaging/packaging.sh
+
+      - name: URL and SHA256
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VER="${TAG#v}"
+          URL="${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${TAG}.tar.gz"
+          SHA256=$(curl -fsSL "$URL" | sha256sum | awk '{print $1}')
+          echo "URL=$URL" >> "$GITHUB_ENV"
+          echo "SHA256=$SHA256" >> "$GITHUB_ENV"
+          echo "VER=$VER" >> "$GITHUB_ENV"
+
+      - name: Version URL SHA
+        run: |
+          echo "VERSION=$VER"
+          echo "URL=$URL"
+          echo "SHA256=$SHA256"
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: atlas-brown/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update Formula
+        run: |
+          FORMULA_FILE=homebrew-tap/Formula/$TOOL.rb
+          sed -i "s|url \".*\"|url \"${URL}\"|" "$FORMULA_FILE"
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" "$FORMULA_FILE"
+          sed -i "s|version \".*\"|version \"${VER}\"|" "$FORMULA_FILE"
+
+      - name: Commit & Push
+        run: |
+          cd homebrew-tap
+          git add Formula/$TOOL.rb
+          git commit -m "Update $TOOL formula to $VER" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packaging/dist/*

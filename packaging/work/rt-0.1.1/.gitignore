@@ -1,0 +1,12 @@
+**/.DS_Store
+**/__pycache__/
+**/.hypothesis
+**/.pytest_cache/
+**/.idea/
+**/.venv/
+**/.vscode/
+**/.coverage/
+*.deb
+*.rpm
+*.tar.gz
+/dist/
