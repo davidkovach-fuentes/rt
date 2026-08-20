@@ -5,6 +5,7 @@ set -eu
 image_remote="${RT_IMAGE_REMOTE:-ghcr.io/atlas-brown/rt:latest}"
 image="${RT_IMAGE:-$image_remote}"
 runtime="${RT_RUNTIME:-docker}"
+command="$(basename "$0")"
 
 if ! command -v "$runtime" >/dev/null 2>&1; then
     echo "rt: '$runtime' not found" >&2
@@ -49,7 +50,7 @@ for arg; do
     fi
 done
 
-set -- "$@" "$image"
+set -- "$@" --entrypoint "/app/.venv/bin/$command" "$image"
 
 # Loop 2: build the rt args
 if [ "$init_argv" -gt 0 ]; then
