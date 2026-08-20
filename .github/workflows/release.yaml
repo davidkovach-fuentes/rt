@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Install Dependencies
         run: |
@@ -33,6 +35,7 @@ jobs:
           RT_PACKAGE_MAINTAINER="atlas@brown.edu" \
           bash packaging/packaging.sh
 
+      # Homebrew downloads GitHub's tag archive; sha256 must match that URL (not git archive).
       - name: URL and SHA256
         run: |
           TAG="${{ github.event.release.tag_name }}"

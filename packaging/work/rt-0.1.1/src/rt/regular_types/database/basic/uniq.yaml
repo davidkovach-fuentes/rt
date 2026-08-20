@@ -1,5 +1,0 @@
-input: '.*'
-output: '{{input}}'
-when:
-  - opts: ['-c']
-    output: '( )*[0-9]+ {{input}}'
