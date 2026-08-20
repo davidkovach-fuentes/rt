@@ -7,7 +7,7 @@ set -euo pipefail
 # Package Information
 VERSION="${VERSION:-0.1.1}"
 REPO="${REPO:-atlas-brown/rt}"
-PKG_ITERATION="${PKG_ITERATION:-1}"
+# PKG_ITERATION="${PKG_ITERATION:-1}"
 MAINTAINER="${RT_PACKAGE_MAINTAINER:-maintainer@email.com}"
 
 # Tree
@@ -34,7 +34,7 @@ ln -sf rt "$FPM_ROOT/usr/bin/rti"
 OPTS=(
   --name "rt"
   --version "$VERSION"
-  --iteration "$PKG_ITERATION"
+  # --iteration "$PKG_ITERATION"
   --maintainer "$MAINTAINER"
   --url "https://github.com/${REPO}"
   --description "Rt: an overlay type system for shell pipelines"

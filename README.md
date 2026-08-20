@@ -188,11 +188,39 @@ curl -fsSL https://raw.githubusercontent.com/atlas-brown/rt/main/scripts/install
 This downloads a thin `rt` wrapper to `~/.local/bin` that runs Rt in Docker.
 Make sure `~/.local/bin` is on your `PATH`. Requires [Docker](https://docs.docker.com/get-docker/).
 
+Requires [Docker](https://docs.docker.com/get-docker/).
+
 ### brew
 
 ```sh
 brew tap atlas-brown/tap
 brew install rt
+```
+
+Requires [Docker](https://docs.docker.com/get-docker/).
+
+### Ubuntu
+```sh
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt_0.1.1_all.deb
+sudo apt install ./rt_0.1.1_all.deb
+```
+
+with `dpkg`:
+```sh
+dpkg -i rt_0.1.1_all.deb
+```
+
+Requires [Docker](https://docs.docker.com/get-docker/).
+
+### Fedora
+```sh
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1-noarch.rpm
+sudo dnf install ./rt-0.1.1-noarch.rpm
+```
+
+with `rpm`:
+```sh
+rpm -i rt-0.1.1-noarch.rpm
 ```
 
 Requires [Docker](https://docs.docker.com/get-docker/).
