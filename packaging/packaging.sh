@@ -53,7 +53,7 @@ fpm "${OPTS[@]}" \
 echo "==> Building RPM"
 fpm "${OPTS[@]}" \
   -t rpm \
-  --package "$OUT_DIR/" \
+  --package "$OUT_DIR/NAME-VERSION.ARCH.EXTENSION" \
   --depends "moby-engine" \
   usr
 
