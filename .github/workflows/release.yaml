@@ -3,6 +3,9 @@ name: Build and Release Packages
 on:
   release:
     types: [published]
+  push:
+    tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -10,7 +13,7 @@ permissions:
 env:
   TOOL: ${{ github.event.repository.name }}
   DESC: An overlay type system for shell pipelines
-  VERSION: ${{ github.event.release.tag_name }}
+  VERSION: ${{ github.event.release.tag_name || github.ref_name }}
 
 jobs:
   linux:
@@ -18,9 +21,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ env.VERSION }}
 
       - name: Install Dependencies
         run: |
@@ -38,7 +41,7 @@ jobs:
       # Homebrew downloads GitHub's tag archive; sha256 must match that URL (not git archive).
       - name: URL and SHA256
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="${VERSION}"
           VER="${TAG#v}"
           URL="${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${TAG}.tar.gz"
           SHA256=$(curl -fsSL "$URL" | sha256sum | awk '{print $1}')
@@ -53,18 +56,21 @@ jobs:
           echo "SHA256=$SHA256"
 
       - name: Set up Git
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Checkout Homebrew tap
-        uses: actions/checkout@v4
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        uses: actions/checkout@v5
         with:
           repository: atlas-brown/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
 
       - name: Update Formula
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
         run: |
           FORMULA_FILE=homebrew-tap/Formula/$TOOL.rb
           sed -i "s|url \".*\"|url \"${URL}\"|" "$FORMULA_FILE"
@@ -72,6 +78,7 @@ jobs:
           sed -i "s|version \".*\"|version \"${VER}\"|" "$FORMULA_FILE"
 
       - name: Commit & Push
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
         run: |
           cd homebrew-tap
           git add Formula/$TOOL.rb
@@ -83,4 +90,6 @@ jobs:
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.VERSION }}
           files: packaging/dist/*
+          fail_on_unmatched_files: true
