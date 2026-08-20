@@ -216,9 +216,9 @@ curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1.
 sudo dnf install ./rt-0.1.1.noarch.rpm
 ```
 
-with `rpm`:
+with `dnf`:
 ```sh
-rpm -i rt-0.1.1.noarch.rpm
+dnf install -y ./rt-0.1.1.noarch.rpm
 ```
 
 Requires [Docker](https://docs.docker.com/get-docker/).
