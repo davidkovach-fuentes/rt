@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# This script takes inspiration from Akshar Nana's build.sh script for building the rt package (pr #2).
+
 set -euo pipefail
 
 # Package Information
@@ -8,24 +10,27 @@ REPO="${REPO:-atlas-brown/rt}"
 PKG_ITERATION="${PKG_ITERATION:-1}"
 MAINTAINER="${RT_PACKAGE_MAINTAINER:-maintainer@email.com}"
 
-# Layout — package the current checkout (CI already checks out the release tag)
+# Tree
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKAGING_DIR="$REPO_ROOT/packaging"
 WORK_DIR="$PACKAGING_DIR/work"
 OUT_DIR="$PACKAGING_DIR/dist"
 SRC_WORK="$REPO_ROOT"
 
-echo "==> Purging"
+# Sanitize
+echo "==> Sanitize"
 rm -rf "$WORK_DIR" "$OUT_DIR"
 mkdir -p "$WORK_DIR" "$OUT_DIR"
 
-echo "==> Staging package tree from $SRC_WORK"
+# Build Tree
+echo "==> Initialize FPM"
 FPM_ROOT="$WORK_DIR/fpm-root"
 mkdir -p "$FPM_ROOT/usr/bin"
 cp "$SRC_WORK/scripts/run-in-container.sh" "$FPM_ROOT/usr/bin/rt"
 chmod 755 "$FPM_ROOT/usr/bin/rt"
 ln -sf rt "$FPM_ROOT/usr/bin/rti"
 
+# FPM Options
 OPTS=(
   --name "rt"
   --version "$VERSION"
@@ -52,5 +57,4 @@ fpm "${OPTS[@]}" \
   --depends "moby-engine" \
   usr
 
-echo "==> Done. Packages in $OUT_DIR:"
-ls -la "$OUT_DIR"
+echo "==> Build Successful"
