@@ -18,6 +18,9 @@ env:
 jobs:
   linux:
     runs-on: ubuntu-latest
+    # secrets cannot be referenced in `if:`; map to env and gate on that.
+    env:
+      HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
     steps:
       - name: Checkout
@@ -56,21 +59,21 @@ jobs:
           echo "SHA256=$SHA256"
 
       - name: Set up Git
-        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        if: env.HOMEBREW_TAP_TOKEN != ''
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Checkout Homebrew tap
-        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        if: env.HOMEBREW_TAP_TOKEN != ''
         uses: actions/checkout@v5
         with:
           repository: atlas-brown/homebrew-tap
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          token: ${{ env.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
 
       - name: Update Formula
-        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        if: env.HOMEBREW_TAP_TOKEN != ''
         run: |
           FORMULA_FILE=homebrew-tap/Formula/$TOOL.rb
           sed -i "s|url \".*\"|url \"${URL}\"|" "$FORMULA_FILE"
@@ -78,14 +81,14 @@ jobs:
           sed -i "s|version \".*\"|version \"${VER}\"|" "$FORMULA_FILE"
 
       - name: Commit & Push
-        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        if: env.HOMEBREW_TAP_TOKEN != ''
         run: |
           cd homebrew-tap
           git add Formula/$TOOL.rb
           git commit -m "Update $TOOL formula to $VER" || echo "No changes to commit"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          GITHUB_TOKEN: ${{ env.HOMEBREW_TAP_TOKEN }}
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
