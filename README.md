@@ -214,13 +214,13 @@ Requires [Docker](https://docs.docker.com/get-docker/).
 
 ### Fedora
 ```sh
-curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1-noarch.rpm
-sudo dnf install ./rt-0.1.1-noarch.rpm
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1.noarch.rpm
+sudo dnf install ./rt-0.1.1.noarch.rpm
 ```
 
 with `rpm`:
 ```sh
-rpm -i rt-0.1.1-noarch.rpm
+rpm -i rt-0.1.1.noarch.rpm
 ```
 
 Requires [Docker](https://docs.docker.com/get-docker/).
