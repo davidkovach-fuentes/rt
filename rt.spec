@@ -1,5 +1,5 @@
-Name: rt
-Version: 0.1.2
+Name: atlas-rt
+Version: 0.1.3
 Release: 1%{?dist}
 License: GPLv3
 Summary: An overlay type system for shell pipelines
@@ -41,6 +41,9 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.3-1
+- new package built with tito
+
 * Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.2-1
 - 
 
@@ -49,5 +52,6 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 * Fri Aug 21 2026 Unknown name 0.1.1-1
 - new package built with tito
+
 
 
