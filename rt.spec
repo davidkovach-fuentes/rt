@@ -1,11 +1,11 @@
 Name: atlas-rt
-Version: 0.1.3
+Version: 0.1.4
 Release: 1%{?dist}
 License: GPLv3
 Summary: An overlay type system for shell pipelines
-Url: https://github.com/atlas-brown/rt
+Url: https://github.com/davidkovach-fuentes/rt
 # Sources can be obtained by
-# git clone https://github.com/atlas-brown/rt.git
+# git clone https://github.com/davidkovach-fuentes/rt.git
 # cd rt
 # uv sync
 # uv run rt --help
@@ -41,6 +41,9 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.4-1
+- 
+
 * Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.3-1
 - new package built with tito
 
