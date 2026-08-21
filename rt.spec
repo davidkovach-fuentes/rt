@@ -41,4 +41,7 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Fri Aug 21 2026 Unknown name 0.1.1-1
+- new package built with tito
+
 
