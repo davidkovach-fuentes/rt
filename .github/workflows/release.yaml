@@ -21,18 +21,24 @@ jobs:
     # secrets cannot be referenced in `if:`; map to env and gate on that.
     env:
       HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+      COPR_API_TOKEN: ${{ secrets.COPR_API_TOKEN }}
+      COPR_LOGIN: ${{ secrets.COPR_LOGIN }}
+      COPR_USERNAME: ${{ secrets.COPR_USERNAME }}
+      COPR_COPR_URL: https://copr.fedorainfracloud.org
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
           ref: ${{ env.VERSION }}
+          fetch-depth: 0  # tito/rpm changelogs need full history, not a shallow clone
 
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y ruby ruby-dev build-essential rpm
+          sudo apt install -y ruby ruby-dev build-essential rpm python3-pip
           sudo gem install --no-document fpm
+          pip install --user tito copr-cli
 
       - name: Build Packages
         run: |
@@ -80,7 +86,7 @@ jobs:
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" "$FORMULA_FILE"
           sed -i "s|version \".*\"|version \"${VER}\"|" "$FORMULA_FILE"
 
-      - name: Commit & Push
+      - name: Commit & Push Homebrew Formula
         if: env.HOMEBREW_TAP_TOKEN != ''
         run: |
           cd homebrew-tap
@@ -89,6 +95,43 @@ jobs:
           git push
         env:
           GITHUB_TOKEN: ${{ env.HOMEBREW_TAP_TOKEN }}
+
+      # --- Copr build ---
+      # Mirrors the manual sequence:
+      #   tito tag <bump>          (done locally/beforehand -- creates the tag that triggers this workflow)
+      #   git push --follow-tags origin
+      #   (cd pkg/linux/fedora && ./build-srpm.sh)
+      #   copr-cli build atlas-rt pkg/linux/fedora/dist/atlas-rt-<version>.src.rpm
+      - name: Configure Copr credentials
+        if: env.COPR_API_TOKEN != ''
+        run: |
+          mkdir -p ~/.config
+          cat > ~/.config/copr <<EOF
+          [copr-cli]
+          login = ${COPR_LOGIN}
+          username = ${COPR_USERNAME}
+          token = ${COPR_API_TOKEN}
+          copr_url = ${COPR_COPR_URL}
+          EOF
+          chmod 600 ~/.config/copr
+
+      - name: Build SRPM
+        if: env.COPR_API_TOKEN != ''
+        working-directory: pkg/linux/fedora
+        run: |
+          ./build-srpm.sh
+
+      - name: Publish to Copr
+        if: env.COPR_API_TOKEN != ''
+        run: |
+          SRPM=$(ls pkg/linux/fedora/dist/atlas-rt-*"${VER}"*.src.rpm | head -n1)
+          if [ -z "$SRPM" ]; then
+            echo "No matching SRPM found for version ${VER} in pkg/linux/fedora/dist/"
+            ls -la pkg/linux/fedora/dist/
+            exit 1
+          fi
+          echo "Submitting $SRPM to Copr..."
+          copr-cli build atlas-rt "$SRPM"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
