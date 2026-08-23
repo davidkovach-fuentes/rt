@@ -1,10 +1,24 @@
-# packaging/dist
+# Fedora / Copr
 
-Local output from `tito` / `packaging.sh` (`.src.rpm`, `.rpm`, `.tar.gz`, `.deb`).
+Docker-wrapper RPM for `scripts/run-in-container.sh`.
 
-These artifacts are **gitignored** (`*.rpm`, `*.tar.gz`, `*.deb` in the repo root `.gitignore`). Build them locally and upload to Copr / GitHub Releases; do not commit the binaries.
+## Copr settings (required)
+
+| Field | Value |
+|---|---|
+| Clone URL | `https://github.com/davidkovach-fuentes/rt.git` |
+| Committish | your branch (e.g. `fpm-ubuntu-fedora`) |
+| Spec file | **`/pkg/linux/fedora/atlas-rt.spec`** |
+| Subdirectory | *(leave empty)* |
+| SRPM build method | **`make_srpm`** |
+
+Do **not** use `tito` — it only packs `pkg/linux/fedora/` and `scripts/` is missing.
+
+`.copr/Makefile` runs `git archive` of the **full repo**, then `rpmbuild -bs`.
+
+## Local test
 
 ```sh
-tito build --srpm --offline -o pkg/linux/fedora
-copr-cli build YOUR_PROJECT pkg/linux/fedora/rt-*.src.rpm
+./pkg/linux/fedora/build-srpm.sh
+# or upload pkg/linux/fedora/dist/*.src.rpm via Copr web UI
 ```

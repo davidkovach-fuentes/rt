@@ -5,8 +5,7 @@ License: GPLv3
 Summary: An overlay type system for shell pipelines
 Url: https://github.com/davidkovach-fuentes/rt
 
-# Full-repo tarball (must include repo-root scripts/). Copr make_srpm / .copr/Makefile
-# creates this from git; do not use Copr method=tito (it only packs this subdirectory).
+# Created by .copr/Makefile via `git archive` of the full repo (includes scripts/).
 Source0: %{name}-%{version}.tar.gz
 
 BuildArch: noarch
@@ -20,7 +19,6 @@ Give it a shell program and it tells you when one command produces data the next
 
 #-- PREP, BUILD & INSTALL -----------------------------------------------------#
 %prep
-# git archive --prefix=rt-%{version}/  (see .copr/Makefile)
 %autosetup -n rt-%{version}
 
 %build
@@ -40,30 +38,8 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.4-2
+- fix Version/Release; full-repo Source0 for Copr make_srpm
+
 * Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.4-1
-- 
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.3-1
-- use full-repo source tree so scripts/ is available during %%install
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> v0.1.3-1
-- adjust SPEC chroot (davidkovach-fuentes2027@u.northwestern.edu)
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> v0.1.2-1
-- create releases, move SPEC (davidkovach-fuentes2027@u.northwestern.edu)
-
-* Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.4-1
--
-
-* Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.3-1
-- new package built with tito
-
-* Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.2-1
--
-
-* Fri Aug 21 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.2-1
--
-
-* Fri Aug 21 2026 Unknown name 0.1.1-1
-- new package built with tito
-- renamed rt to atlas-rt
+- Copr packaging for Docker wrapper (scripts/run-in-container.sh)
