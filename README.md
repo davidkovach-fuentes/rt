@@ -211,14 +211,19 @@ dpkg -i rt_0.1.1_all.deb
 Requires [Docker](https://docs.docker.com/get-docker/).
 
 ### Fedora
+
+rt is hosted on Fedora Copr. You can install from the official [repo](https://copr.fedorainfracloud.org/coprs/dvkofu/atlas-rt/):
+
 ```sh
-curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1.noarch.rpm
-sudo dnf install ./rt-0.1.1.noarch.rpm
+dnf copr enable atlas-brown/atlas-rt 
+sudo dnf install -y atlas-rt
 ```
 
-with `dnf`:
+You can also install the latest archive directly from GitHub:
+
 ```sh
-dnf install -y ./rt-0.1.1.noarch.rpm
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1.noarch.rpm
+sudo dnf install -y ./rt-0.1.1.noarch.rpm
 ```
 
 Requires [Docker](https://docs.docker.com/get-docker/).
