@@ -1,5 +1,5 @@
 Name: atlas-rt
-Version: 0.1.4
+Version: 0.1.5
 Release: 1%{?dist}
 License: GPLv3
 Summary: An overlay type system for shell pipelines
@@ -38,6 +38,10 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.5-1
+- Fix Copr Fedora build with make_srpm and full-repo archive (davidkovach-
+  fuentes2027@u.northwestern.edu)
+
 * Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.4-2
 - fix Version/Release; full-repo Source0 for Copr make_srpm
 
