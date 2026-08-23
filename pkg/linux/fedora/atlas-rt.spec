@@ -1,5 +1,5 @@
 Name: atlas-rt
-Version: 0.1.4
+Version: v0.1.1
 Release: 1%{?dist}
 License: GPLv3
 Summary: An overlay type system for shell pipelines
