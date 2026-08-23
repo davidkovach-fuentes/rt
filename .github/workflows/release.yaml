@@ -34,12 +34,12 @@ jobs:
           sudo apt install -y ruby ruby-dev build-essential rpm
           sudo gem install --no-document fpm
 
-      - name: Build packages
+      - name: Build Packages
         run: |
           VERSION="${VERSION#v}" \
           REPO="${{ github.repository }}" \
           RT_PACKAGE_MAINTAINER="atlas@brown.edu" \
-          bash packaging/packaging.sh
+          bash scripts/build-packages.sh
 
       # Homebrew downloads GitHub's tag archive; sha256 must match that URL (not git archive).
       - name: URL and SHA256

@@ -12,18 +12,18 @@ MAINTAINER="${RT_PACKAGE_MAINTAINER:-maintainer@email.com}"
 
 # Tree
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACKAGING_DIR="$REPO_ROOT/packaging"
+PACKAGING_DIR="$REPO_ROOT/pkg"
 WORK_DIR="$PACKAGING_DIR/work"
-OUT_DIR="$PACKAGING_DIR/dist"
+OUT_DIR="$PACKAGING_DIR/linux"
 SRC_WORK="$REPO_ROOT"
 
-# Sanitize
-echo "==> Sanitize"
+# Cleaning
+echo "==> Cleaning Directories"
 rm -rf "$WORK_DIR" "$OUT_DIR"
 mkdir -p "$WORK_DIR" "$OUT_DIR"
 
 # Build Tree
-echo "==> Initialize FPM"
+echo "==> Chroot Staging Tree"
 FPM_ROOT="$WORK_DIR/fpm-root"
 mkdir -p "$FPM_ROOT/usr/bin"
 cp "$SRC_WORK/scripts/run-in-container.sh" "$FPM_ROOT/usr/bin/rt"
