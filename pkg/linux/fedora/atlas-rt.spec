@@ -4,11 +4,9 @@ Release: 1%{?dist}
 License: GPLv3
 Summary: An overlay type system for shell pipelines
 Url: https://github.com/davidkovach-fuentes/rt
-# Sources can be obtained by
-# git clone https://github.com/davidkovach-fuentes/rt.git
-# cd rt
-# uv sync
-# uv run rt --help
+# Unpacked tag archive / tito tarball top-level directory (repo name, not package name).
+%global rt_version %(echo '%{version}' | sed 's/^v//')
+%global rt_root rt-%{rt_version}
 Source0: %{name}-%{version}.tar.gz
 
 BuildArch: noarch
@@ -22,13 +20,13 @@ Give it a shell program and it tells you when one command produces data the next
 
 #-- PREP, BUILD & INSTALL -----------------------------------------------------#
 %prep
-%autosetup
+%setup -q -n %{rt_root}
 
 %build
 
 %install
 mkdir -p %{buildroot}%{_bindir}
-install -p -m 755 scripts/run-in-container.sh %{buildroot}%{_bindir}/rt
+install -p -m 755 %{builddir}/scripts/run-in-container.sh %{buildroot}%{_bindir}/rt
 ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- FILES ---------------------------------------------------------------------#
