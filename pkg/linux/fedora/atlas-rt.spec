@@ -55,6 +55,6 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 * Fri Aug 21 2026 Unknown name 0.1.1-1
 - new package built with tito
-
+- renamed rt to atlas-rt
 
 
