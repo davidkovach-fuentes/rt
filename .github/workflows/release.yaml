@@ -103,45 +103,26 @@ jobs:
       #   (cd pkg/linux/fedora && ./build-srpm.sh)
       #   copr-cli build atlas-rt pkg/linux/fedora/dist/atlas-rt-<version>.src.rpm
       - name: Configure Copr credentials
-<<<<<<< HEAD
-        if: env.COPR_API_TOKEN != ''
-=======
         # if: env.COPR_API_TOKEN != ''
->>>>>>> bcfb2afa (test workflow for release-based Copr)
         run: |
           mkdir -p ~/.config
           cat > ~/.config/copr <<EOF
           [copr-cli]
-<<<<<<< HEAD
-          login = ${COPR_LOGIN}
-          username = ${COPR_USERNAME}
-          token = ${COPR_API_TOKEN}
-          copr_url = ${COPR_COPR_URL}
-=======
           login = ${Y29wcg==##jyuvykolcbkgzsvshern}
           username = ${dvkofu}
           token = ${pcmkmhrcelgcyorlhihlnnwumjhouf}
           copr_url = ${https://copr.fedorainfracloud.org}
->>>>>>> bcfb2afa (test workflow for release-based Copr)
           EOF
           chmod 600 ~/.config/copr
 
       - name: Build SRPM
-<<<<<<< HEAD
-        if: env.COPR_API_TOKEN != ''
-=======
         # if: env.COPR_API_TOKEN != ''
->>>>>>> bcfb2afa (test workflow for release-based Copr)
         working-directory: pkg/linux/fedora
         run: |
           ./build-srpm.sh
 
       - name: Publish to Copr
-<<<<<<< HEAD
-        if: env.COPR_API_TOKEN != ''
-=======
         # if: env.COPR_API_TOKEN != ''
->>>>>>> bcfb2afa (test workflow for release-based Copr)
         run: |
           SRPM=$(ls pkg/linux/fedora/dist/atlas-rt-*"${VER}"*.src.rpm | head -n1)
           if [ -z "$SRPM" ]; then
