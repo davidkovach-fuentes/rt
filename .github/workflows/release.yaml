@@ -21,24 +21,25 @@ jobs:
     # secrets cannot be referenced in `if:`; map to env and gate on that.
     env:
       HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-      COPR_API_TOKEN: ${{ secrets.COPR_API_TOKEN }}
       COPR_LOGIN: ${{ secrets.COPR_LOGIN }}
       COPR_USERNAME: ${{ secrets.COPR_USERNAME }}
-      COPR_COPR_URL: https://copr.fedorainfracloud.org
+      COPR_TOKEN: ${{ secrets.COPR_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          ref: ${{ env.VERSION }}
-          fetch-depth: 0  # tito/rpm changelogs need full history, not a shallow clone
+          # Prefer the triggering ref; only pin to a release tag when one exists.
+          ref: ${{ github.event.release.tag_name || github.sha }}
+          fetch-depth: 0
 
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y ruby ruby-dev build-essential rpm python3-pip
+          sudo apt install -y ruby ruby-dev build-essential rpm make python3-pip
           sudo gem install --no-document fpm
-          pip install --user tito copr-cli
+          pip install --user copr-cli
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Build Packages
         run: |
@@ -96,46 +97,51 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ env.HOMEBREW_TAP_TOKEN }}
 
-      # --- Copr build ---
-      # Mirrors the manual sequence:
-      #   tito tag <bump>          (done locally/beforehand -- creates the tag that triggers this workflow)
-      #   git push --follow-tags origin
-      #   (cd pkg/linux/fedora && ./build-srpm.sh)
-      #   copr-cli build atlas-rt pkg/linux/fedora/dist/atlas-rt-<version>.src.rpm
+      # Copr: use make_srpm (.copr/Makefile), not tito — full-repo archive includes scripts/.
       - name: Configure Copr credentials
-        # if: env.COPR_API_TOKEN != ''
+        if: env.COPR_TOKEN != ''
         run: |
           mkdir -p ~/.config
           cat > ~/.config/copr <<EOF
           [copr-cli]
-          login = ${Y29wcg==##jyuvykolcbkgzsvshern}
-          username = ${dvkofu}
-          token = ${pcmkmhrcelgcyorlhihlnnwumjhouf}
-          copr_url = ${https://copr.fedorainfracloud.org}
+          login = ${COPR_LOGIN}
+          username = ${COPR_USERNAME}
+          token = ${COPR_TOKEN}
+          copr_url = https://copr.fedorainfracloud.org
           EOF
+          # Strip leading indentation so the INI parses cleanly.
+          sed -i 's/^[[:space:]]*//' ~/.config/copr
           chmod 600 ~/.config/copr
+          # Sanity: do not print secrets; just confirm keys exist.
+          grep -E '^(login|username|token|copr_url) =' ~/.config/copr | sed 's/= .*/= ***/'
 
       - name: Build SRPM
-        # if: env.COPR_API_TOKEN != ''
-        working-directory: pkg/linux/fedora
+        if: env.COPR_TOKEN != ''
         run: |
-          ./build-srpm.sh
+          test -f pkg/linux/fedora/build-srpm.sh
+          test -f .copr/Makefile
+          bash pkg/linux/fedora/build-srpm.sh "$PWD/pkg/linux/fedora/dist"
+          ls -la pkg/linux/fedora/dist/
 
       - name: Publish to Copr
-        # if: env.COPR_API_TOKEN != ''
+        if: env.COPR_TOKEN != ''
         run: |
-          SRPM=$(ls pkg/linux/fedora/dist/atlas-rt-*"${VER}"*.src.rpm | head -n1)
+          SRPM=$(ls pkg/linux/fedora/dist/atlas-rt-*.src.rpm | head -n1)
           if [ -z "$SRPM" ]; then
-            echo "No matching SRPM found for version ${VER} in pkg/linux/fedora/dist/"
-            ls -la pkg/linux/fedora/dist/
+            echo "No SRPM found in pkg/linux/fedora/dist/"
+            ls -la pkg/linux/fedora/dist/ || true
             exit 1
           fi
           echo "Submitting $SRPM to Copr..."
-          copr-cli build atlas-rt "$SRPM"
+          # Project is usually OWNER/NAME on Copr
+          copr-cli build "${COPR_USERNAME}/atlas-rt" "$SRPM"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
-          files: pkg/linux/*
-          fail_on_unmatched_files: true
+          files: |
+            pkg/linux/*.deb
+            pkg/linux/*.rpm
+            pkg/linux/fedora/dist/*.src.rpm
+          fail_on_unmatched_files: false
