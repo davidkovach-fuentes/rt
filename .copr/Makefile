@@ -1,19 +1,20 @@
 # Copr: SRPM build method = make_srpm
 # Invoked as:
-#   make -f .copr/Makefile srpm outdir=... spec=/pkg/linux/fedora/atlas-rt.spec
+#   make -f .copr/Makefile srpm outdir=... spec=pkg/linux/fedora/atlas-rt.spec
 #
 # Copr UI:
 #   Spec file:     /pkg/linux/fedora/atlas-rt.spec
 #   Subdirectory:  (empty)
 #   Build method:  make_srpm  (NOT tito)
 
-#!/bin/bash
+# Recipes use bash features; Ubuntu's /bin/sh is dash (no pipefail).
+SHELL := /bin/bash
+.SHELLFLAGS := -euo pipefail -c
 
 .PHONY: srpm
 
 srpm:
-	@set -euo pipefail; \
-	spec="$(spec)"; \
+	@spec="$(spec)"; \
 	outdir="$(outdir)"; \
 	[ -n "$$spec" ] && [ -n "$$outdir" ]; \
 	mkdir -p "$$outdir"; \
