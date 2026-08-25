@@ -7,6 +7,8 @@
 #   Subdirectory:  (empty)
 #   Build method:  make_srpm  (NOT tito)
 
+#!/bin/bash
+
 .PHONY: srpm
 
 srpm:
