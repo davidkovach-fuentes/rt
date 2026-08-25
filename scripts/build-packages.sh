@@ -14,7 +14,8 @@ MAINTAINER="${RT_PACKAGE_MAINTAINER:-maintainer@email.com}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKAGING_DIR="$REPO_ROOT/pkg"
 WORK_DIR="$PACKAGING_DIR/work"
-OUT_DIR="$PACKAGING_DIR/linux"
+# Write artifacts under dist/ — never wipe pkg/linux/ (holds fedora/ sources).
+OUT_DIR="$PACKAGING_DIR/linux/dist"
 SRC_WORK="$REPO_ROOT"
 
 # Cleaning

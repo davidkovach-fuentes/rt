@@ -141,7 +141,7 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           files: |
-            pkg/linux/*.deb
-            pkg/linux/*.rpm
+            pkg/linux/dist/*.deb
+            pkg/linux/dist/*.rpm
             pkg/linux/fedora/dist/*.src.rpm
           fail_on_unmatched_files: false
