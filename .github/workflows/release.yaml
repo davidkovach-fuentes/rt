@@ -98,11 +98,3 @@ jobs:
             pkg/linux/artifacts/*.deb
             pkg/linux/artifacts/*.rpm
           fail_on_unmatched_files: false
-
-  copr:
-    uses: ./.github/workflows/publish-copr.yaml
-    with:
-      # Copr NVR comes from this tag (e.g. v0.1.8 → atlas-rt-0.1.8-1).
-      # Reusing an old tag like 0.1.1 will rebuild 0.1.1.
-      version: ${{ github.event.release.tag_name || github.ref_name }}
-    secrets: inherit
