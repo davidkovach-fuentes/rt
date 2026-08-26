@@ -1,11 +1,12 @@
 Name: atlas-rt
-Version: v0.1.1
+# Override at build time: rpmbuild --define "rt_version 0.1.5"
+Version: %{?rt_version}%{!?rt_version:0.1.0}
 Release: 1%{?dist}
 License: GPLv3
 Summary: An overlay type system for shell pipelines
 Url: https://github.com/davidkovach-fuentes/rt
 
-# Created by .copr/Makefile via `git archive` of the full repo (includes scripts/).
+# Created by .copr/Makefile via git archive of the full repo (includes scripts/).
 Source0: %{name}-%{version}.tar.gz
 
 BuildArch: noarch
@@ -38,27 +39,8 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> v0.1.1-1
-- 
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu>
-- 
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.2-1
-- 
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.1-1
-- 
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu>
-- 
-
-* Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.1-1
-- 
-
 * Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.5-1
-- Fix Copr Fedora build with make_srpm and full-repo archive (davidkovach-
-  fuentes2027@u.northwestern.edu)
+- Fix Copr Fedora build with make_srpm and full-repo archive
 
 * Sun Aug 23 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.4-2
 - fix Version/Release; full-repo Source0 for Copr make_srpm

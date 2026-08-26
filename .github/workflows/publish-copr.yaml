@@ -1,0 +1,98 @@
+name: Publish to Copr
+
+# Reusable workflow: build an atlas-rt SRPM and submit it to Copr.
+# Called from release.yaml; can also be run by hand from Actions.
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Release tag or version string (e.g. v0.1.5)
+        type: string
+        required: false
+        default: ""
+    secrets:
+      COPR_LOGIN:
+        required: false
+      COPR_USERNAME:
+        required: false
+      COPR_TOKEN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag or version string (e.g. v0.1.5)
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  copr:
+    runs-on: ubuntu-latest
+    env:
+      COPR_LOGIN: ${{ secrets.COPR_LOGIN }}
+      COPR_USERNAME: ${{ secrets.COPR_USERNAME }}
+      COPR_TOKEN: ${{ secrets.COPR_TOKEN }}
+      VERSION: ${{ inputs.version || github.event.release.tag_name || github.ref_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Install tools
+        if: env.COPR_TOKEN != ''
+        run: |
+          sudo apt update
+          sudo apt install -y rpm make python3-pip
+          pip install --user copr-cli
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Write Copr config
+        if: env.COPR_TOKEN != ''
+        run: |
+          mkdir -p ~/.config
+          {
+            echo "[copr-cli]"
+            echo "login = ${COPR_LOGIN}"
+            echo "username = ${COPR_USERNAME}"
+            echo "token = ${COPR_TOKEN}"
+            echo "copr_url = https://copr.fedorainfracloud.org"
+          } > ~/.config/copr
+          chmod 600 ~/.config/copr
+
+      - name: Build SRPM
+        if: env.COPR_TOKEN != ''
+        run: |
+          test -f scripts/build-srpm.sh
+          test -f .copr/Makefile
+          VERSION="${VERSION}" bash scripts/build-srpm.sh "$PWD/pkg/linux/fedora/artifacts"
+          ls -la pkg/linux/fedora/artifacts/
+
+      - name: Submit to Copr
+        if: env.COPR_TOKEN != ''
+        run: |
+          SRPM=$(ls pkg/linux/fedora/artifacts/atlas-rt-*.src.rpm | head -n1)
+          if [ -z "$SRPM" ]; then
+            echo "No SRPM under pkg/linux/fedora/artifacts/"
+            ls -la pkg/linux/fedora/artifacts/ || true
+            exit 1
+          fi
+          echo "Submitting $SRPM"
+          copr-cli build "${COPR_USERNAME}/atlas-rt" "$SRPM"
+
+      - name: Attach SRPM to GitHub Release
+        if: env.COPR_TOKEN != '' && (github.event_name == 'release' || startsWith(github.ref, 'refs/tags/'))
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: pkg/linux/fedora/artifacts/*.src.rpm
+          fail_on_unmatched_files: false
+
+      - name: Skip when Copr secrets are missing
+        if: env.COPR_TOKEN == ''
+        run: echo "COPR_TOKEN is unset; skipping Copr publish."

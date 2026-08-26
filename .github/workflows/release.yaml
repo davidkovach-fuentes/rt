@@ -18,38 +18,30 @@ env:
 jobs:
   linux:
     runs-on: ubuntu-latest
-    # secrets cannot be referenced in `if:`; map to env and gate on that.
     env:
       HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-      COPR_LOGIN: ${{ secrets.COPR_LOGIN }}
-      COPR_USERNAME: ${{ secrets.COPR_USERNAME }}
-      COPR_TOKEN: ${{ secrets.COPR_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # Prefer the triggering ref; only pin to a release tag when one exists.
           ref: ${{ github.event.release.tag_name || github.sha }}
-          # git archive only needs HEAD; full history made checkout hang on large repos.
           fetch-depth: 1
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y ruby ruby-dev build-essential rpm rpm2cpio make python3-pip
+          sudo apt install -y ruby ruby-dev build-essential rpm rpm2cpio make
           sudo gem install --no-document fpm
-          pip install --user copr-cli
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Build Packages
+      - name: Build packages
         run: |
           VERSION="${VERSION#v}" \
           REPO="${{ github.repository }}" \
           RT_PACKAGE_MAINTAINER="atlas@brown.edu" \
           bash scripts/build-packages.sh
 
-      # Homebrew downloads GitHub's tag archive; sha256 must match that URL (not git archive).
+      # Brew installs from GitHub's tag archive; checksum must match that URL.
       - name: URL and SHA256
         run: |
           TAG="${VERSION}"
@@ -60,7 +52,7 @@ jobs:
           echo "SHA256=$SHA256" >> "$GITHUB_ENV"
           echo "VER=$VER" >> "$GITHUB_ENV"
 
-      - name: Version URL SHA
+      - name: Print version URL SHA
         run: |
           echo "VERSION=$VER"
           echo "URL=$URL"
@@ -88,7 +80,7 @@ jobs:
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" "$FORMULA_FILE"
           sed -i "s|version \".*\"|version \"${VER}\"|" "$FORMULA_FILE"
 
-      - name: Commit & Push Homebrew Formula
+      - name: Commit and push Homebrew Formula
         if: env.HOMEBREW_TAP_TOKEN != ''
         run: |
           cd homebrew-tap
@@ -98,51 +90,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ env.HOMEBREW_TAP_TOKEN }}
 
-      # Copr: use make_srpm (.copr/Makefile), not tito — full-repo archive includes scripts/.
-      - name: Configure Copr credentials
-        if: env.COPR_TOKEN != ''
-        run: |
-          mkdir -p ~/.config
-          cat > ~/.config/copr <<EOF
-          [copr-cli]
-          login = ${COPR_LOGIN}
-          username = ${COPR_USERNAME}
-          token = ${COPR_TOKEN}
-          copr_url = https://copr.fedorainfracloud.org
-          EOF
-          # Strip leading indentation so the INI parses cleanly.
-          sed -i 's/^[[:space:]]*//' ~/.config/copr
-          chmod 600 ~/.config/copr
-          # Sanity: do not print secrets; just confirm keys exist.
-          grep -E '^(login|username|token|copr_url) =' ~/.config/copr | sed 's/= .*/= ***/'
-
-      - name: Build SRPM
-        if: env.COPR_TOKEN != ''
-        run: |
-          test -f pkg/linux/fedora/build-srpm.sh
-          test -f .copr/Makefile
-          bash pkg/linux/fedora/build-srpm.sh "$PWD/pkg/linux/fedora/dist"
-          ls -la pkg/linux/fedora/dist/
-
-      - name: Publish to Copr
-        if: env.COPR_TOKEN != ''
-        run: |
-          SRPM=$(ls pkg/linux/fedora/dist/atlas-rt-*.src.rpm | head -n1)
-          if [ -z "$SRPM" ]; then
-            echo "No SRPM found in pkg/linux/fedora/dist/"
-            ls -la pkg/linux/fedora/dist/ || true
-            exit 1
-          fi
-          echo "Submitting $SRPM to Copr..."
-          # Project is usually OWNER/NAME on Copr
-          copr-cli build "${COPR_USERNAME}/atlas-rt" "$SRPM"
-
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
           files: |
-            pkg/linux/dist/*.deb
-            pkg/linux/dist/*.rpm
-            pkg/linux/fedora/dist/*.src.rpm
+            pkg/linux/artifacts/*.deb
+            pkg/linux/artifacts/*.rpm
           fail_on_unmatched_files: false
+
+  # Copr publish (reusable workflow). Runs alongside the linux job.
+  copr:
+    uses: ./.github/workflows/publish-copr.yaml
+    with:
+      version: ${{ github.event.release.tag_name || github.ref_name }}
+    secrets: inherit
