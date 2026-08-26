@@ -41,7 +41,6 @@ jobs:
           RT_PACKAGE_MAINTAINER="atlas@brown.edu" \
           bash scripts/build-packages.sh
 
-      # Brew installs from GitHub's tag archive; checksum must match that URL.
       - name: URL and SHA256
         run: |
           TAG="${VERSION}"
