@@ -1,8 +1,5 @@
 name: Publish to Copr
 
-# Reusable workflow: build an atlas-rt SRPM and submit it to Copr.
-# Called from release.yaml; can also be run by hand from Actions.
-
 on:
   workflow_call:
     inputs:
@@ -44,7 +41,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install tools
+      - name: Install dependencies
         if: env.COPR_TOKEN != ''
         run: |
           sudo apt update
@@ -84,14 +81,6 @@ jobs:
           fi
           echo "Submitting $SRPM"
           copr-cli build "${COPR_USERNAME}/atlas-rt" "$SRPM"
-
-      - name: Attach SRPM to GitHub Release
-        if: env.COPR_TOKEN != '' && (github.event_name == 'release' || startsWith(github.ref, 'refs/tags/'))
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.VERSION }}
-          files: pkg/linux/fedora/artifacts/*.src.rpm
-          fail_on_unmatched_files: false
 
       - name: Skip when Copr secrets are missing
         if: env.COPR_TOKEN == ''

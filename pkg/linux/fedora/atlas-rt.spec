@@ -2,7 +2,7 @@ Name: atlas-rt
 # Override at build time: rpmbuild --define "rt_version 0.1.5"
 Version: %{?rt_version}%{!?rt_version:0.1.0}
 Release: 1%{?dist}
-License: GPLv3
+License: MIT
 Summary: An overlay type system for shell pipelines
 Url: https://github.com/davidkovach-fuentes/rt
 

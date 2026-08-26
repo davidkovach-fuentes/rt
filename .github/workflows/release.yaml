@@ -99,7 +99,6 @@ jobs:
             pkg/linux/artifacts/*.rpm
           fail_on_unmatched_files: false
 
-  # Copr publish (reusable workflow). Runs alongside the linux job.
   copr:
     uses: ./.github/workflows/publish-copr.yaml
     with:
