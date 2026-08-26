@@ -9,7 +9,6 @@ MAINTAINER="${RT_PACKAGE_MAINTAINER:-maintainer@email.com}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKAGING_DIR="$REPO_ROOT/pkg"
 WORK_DIR="$PACKAGING_DIR/work"
-# Keep outputs under artifacts/ (not the whole pkg/linux tree).
 OUT_DIR="$PACKAGING_DIR/linux/artifacts"
 SRC_WORK="$REPO_ROOT"
 

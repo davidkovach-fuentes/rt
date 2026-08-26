@@ -40,12 +40,3 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
-* Wed Aug 26 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> v0.1.1-1
-- revert to webhooks and place spec in root (davidkovach-
-  fuentes2027@u.northwestern.edu)
-
-* Wed Aug 26 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.1-1
-- 
-
-* Wed Aug 26 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.0-1
-- Switch to root-level tito packaging for Copr webhooks

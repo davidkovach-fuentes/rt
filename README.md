@@ -212,7 +212,7 @@ Requires [Docker](https://docs.docker.com/get-docker/).
 
 ### Fedora
 
-rt is hosted on Fedora Copr. You can install from the official [repo](https://copr.fedorainfracloud.org/coprs/dvkofu/atlas-rt/):
+rt is hosted on Fedora Copr. You can install from the official [repo](TODO):
 
 ```sh
 dnf copr enable atlas-brown/atlas-rt 
