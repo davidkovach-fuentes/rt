@@ -32,7 +32,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          dnf upgrade --refresh
           dnf install -y rpm rpm-build make git python3-pip
           dnf install -y tito copr-cli
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
