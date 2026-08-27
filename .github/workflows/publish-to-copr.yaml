@@ -1,13 +1,14 @@
 name: Publish to Copr
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'New version (e.g. 0.1.8). Leave blank to auto-bump the patch.'
-        required: false
+        description: 'Package version (e.g. 0.1.2 or v0.1.2). Required for manual runs.'
+        required: true
         type: string
 
 permissions:
@@ -34,6 +35,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
+          ref: ${{ github.ref }}
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: true
@@ -95,22 +97,32 @@ jobs:
       - name: Resolve version
         id: ver
         run: |
-          raw='${{ inputs.version }}'
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            raw='${{ inputs.version }}'
+          else
+            # push on v* tag (e.g. v0.1.2)
+            raw='${{ github.ref_name }}'
+          fi
           raw="${raw#v}"
           raw="${raw#atlas-rt-}"
-          if [[ "$raw" =~ ^([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=" >> "$GITHUB_OUTPUT"
+          raw="${raw%%-*}"
+          if [[ ! "$raw" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "error: expected semver from git tag (e.g. v0.1.2), got '${raw}'" >&2
+            exit 1
           fi
+          echo "version=${raw}" >> "$GITHUB_OUTPUT"
+          echo "resolved package version: ${raw}"
 
       - name: Tito tag
         run: |
-          if [[ -n "${{ steps.ver.outputs.version }}" ]]; then
-            tito tag --use-version="${{ steps.ver.outputs.version }}" --accept-auto-changelog
-          else
-            tito tag --accept-auto-changelog
+          ver='${{ steps.ver.outputs.version }}'
+          tito_tag="${TOOL}-${ver}-1"
+          if git rev-parse -q --verify "refs/tags/${tito_tag}" >/dev/null; then
+            echo "Tito tag ${tito_tag} already exists; nothing to do."
+            exit 0
           fi
+          tito tag --use-version="${ver}" --accept-auto-changelog
 
       - name: Show new tag
         run: |
