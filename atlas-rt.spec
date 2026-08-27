@@ -1,5 +1,5 @@
 Name: atlas-rt
-Version: 0.1.4
+Version: 0.1.2
 Release: 1%{?dist}
 License: MIT
 Summary: An overlay type system for shell pipelines
@@ -40,6 +40,12 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Thu Aug 27 2026 github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+- Update triggers and version resolution to use the v* git tag (davidkovach-
+  fuentes2027@u.northwestern.edu)
+- update project version; more testing with workflow (davidkovach-
+  fuentes2027@u.northwestern.edu)
+
 * Thu Aug 27 2026 github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
 - no (davidkovach-fuentes2027@u.northwestern.edu)
 - stop throwing (davidkovach-fuentes2027@u.northwestern.edu)
