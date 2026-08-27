@@ -119,4 +119,4 @@ jobs:
           git log -1 --oneline
 
       - name: Push commit and tag
-        run: git push --follow-tags origin
+        run: git push --follow-tags origin HEAD:fpm-ubuntu-fedora
