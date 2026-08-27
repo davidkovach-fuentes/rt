@@ -1,8 +1,8 @@
+# Tag a new atlas-rt release with tito and push it.
+# Copr rebuilds via the GitHub webhook (build method: tito).
 name: Publish to Copr
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       version:
@@ -21,8 +21,16 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: fedora:latest
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
 
     steps:
+      # Must install git BEFORE checkout so the action can create a real .git.
+      - name: Install git
+        working-directory: /
+        run: dnf install -y git
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -30,24 +38,23 @@ jobs:
           fetch-tags: true
           persist-credentials: true
 
-      # fedora:latest has no git; install before any git/tito command.
-      - name: Install dependencies
-        run: |
-          dnf install -y rpm-build git tito
-          tito --version
+      - name: Install packaging tools
+        working-directory: /
+        run: dnf install -y rpm-build tito
 
-      # Container is root; checkout files are owned by the runner user.
-      - name: Trust git worktree
+      - name: Configure git
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          set -eux
+          pwd
+          ls -la
+          test -d .git -o -f .git
+          git config --global --add safe.directory "${{ github.workspace }}"
           git config --global --add safe.directory "*"
-          git rev-parse --show-toplevel
-          git status -sb
-
-      - name: Set up Git identity
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rev-parse --show-toplevel
+          git status -sb
+          tito --version
 
       - name: Tito check
         run: |
@@ -58,7 +65,7 @@ jobs:
 
       - name: Test build (tito --test)
         run: |
-          OUTDIR="${RUNNER_TEMP:-/tmp}/tito-test"
+          OUTDIR=/tmp/tito-test
           mkdir -p "$OUTDIR"
           tito build --test --rpm --output="$OUTDIR"
           ls -la "$OUTDIR"
@@ -85,9 +92,8 @@ jobs:
 
       - name: Show new tag
         run: |
-          echo "tito packages:"
           cat ".tito/packages/${TOOL}"
-          echo "new tag: $(git describe --tags --abbrev=0)"
+          git describe --tags --abbrev=0
           git log -1 --oneline
 
       - name: Push commit and tag
