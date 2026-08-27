@@ -32,9 +32,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo dnf upgrade --refresh
-          sudo dnf install -y rpm rpm-build make git python3-pip
-          sudo dnf install -y tito copr-cli
+          dnf upgrade --refresh
+          dnf install -y rpm rpm-build make git python3-pip
+          dnf install -y tito copr-cli
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Set up Git identity
