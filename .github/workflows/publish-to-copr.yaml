@@ -1,0 +1,93 @@
+name: Publish to Copr
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Package version. Leave blank to auto-bump.
+        type: string
+        required: false
+        default: ''
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version. Leave blank to auto-bump the patch.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  TOOL: atlas-rt
+
+jobs:
+  tito-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: true
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          # python3-rpm: tito imports the rpm Python module
+          sudo apt-get install -y rpm rpm-build python3-rpm python3-pip git
+          pip install --user tito
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Set up Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Tito check
+        run: |
+          test -f atlas-rt.spec
+          test -f .tito/tito.props
+          test -f ".tito/packages/${TOOL}"
+          tito check
+
+      - name: Test Build (tito --test)
+        run: |
+          OUTDIR="${RUNNER_TEMP}/tito-test"
+          mkdir -p "$OUTDIR"
+          tito build --test --rpm --output="$OUTDIR"
+          ls -la "$OUTDIR"
+
+      - name: Resolve Version
+        id: ver
+        run: |
+          raw='${{ inputs.version }}'
+          raw="${raw#v}"
+          raw="${raw#atlas-rt-}"
+          # Drop a trailing -N release suffix if someone passed a full NVR.
+          if [[ "$raw" =~ ^([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=" >> "$GITHUB_OUTPUT"
+          fi
+          echo "input raw='${{ inputs.version }}' resolved='$(cat "$GITHUB_OUTPUT" | sed -n 's/^version=//p')'"
+
+      - name: Tito Tag
+        run: |
+          if [ -n "${{ steps.ver.outputs.version }}" ]; then
+            tito tag --use-version="${{ steps.ver.outputs.version }}" --accept-auto-changelog
+          else
+            tito tag --accept-auto-changelog
+          fi
+
+      - name: Show new Tag
+        run: |
+          echo "tito packages:"
+          cat ".tito/packages/${TOOL}"
+          echo "new tag: $(git describe --tags --abbrev=0)"
+          git log -1 --oneline
+
+      - name: Push commit and tag
+        run: git push --follow-tags origin
