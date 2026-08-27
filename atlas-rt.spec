@@ -1,5 +1,5 @@
 Name: atlas-rt
-Version: 1.1.1
+Version: 1.0.1
 Release: 1%{?dist}
 License: MIT
 Summary: An overlay type system for shell pipelines
@@ -40,6 +40,9 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Thu Aug 27 2026 github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+- 
+
 * Thu Aug 27 2026 github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
 - add git pull to workflow (davidkovach-fuentes2027@u.northwestern.edu)
 
