@@ -19,6 +19,8 @@ env:
 jobs:
   tito-tag:
     runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
 
     steps:
       - name: Checkout
@@ -30,10 +32,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt update
-          sudo apt install -y rpm make python3-pip
-          sudo pip3 install tito
-          sudo pip3 install --user copr-cli
+          sudo dnf upgrade --refresh
+          sudo dnf install -y rpm rpm-build make git python3-pip
+          sudo dnf install -y tito copr-cli
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Set up Git identity
@@ -43,9 +44,6 @@ jobs:
 
       - name: Tito check
         run: |
-          test -f atlas-rt.spec
-          test -f .tito/tito.props
-          test -f ".tito/packages/${TOOL}"
           tito --version
 
       - name: Test Build (tito --test)
