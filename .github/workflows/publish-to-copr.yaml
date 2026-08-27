@@ -42,7 +42,7 @@ jobs:
 
       - name: Test Build (tito --test)
         run: |
-          OUTDIR="${RUNNER_TEMP}/tito-test"
+          OUTDIR="pkg/linux/fedora/tito-test"
           mkdir -p "$OUTDIR"
           tito build --test --rpm --output="$OUTDIR"
           ls -la "$OUTDIR"
