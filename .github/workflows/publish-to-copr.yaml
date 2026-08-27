@@ -1,13 +1,8 @@
 name: Publish to Copr
 
 on:
-  workflow_call:
-    inputs:
-      version:
-        description: Package version. Leave blank to auto-bump.
-        type: string
-        required: false
-        default: ''
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       version:
