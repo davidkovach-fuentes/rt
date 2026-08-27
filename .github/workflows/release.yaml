@@ -1,7 +1,5 @@
 name: Build and Release Packages
 
-# Only on published releases (not also on tag push). Creating a release both
-# pushes a v* tag and emits release:published — listening to both submits Copr twice.
 on:
   release:
     types: [published]

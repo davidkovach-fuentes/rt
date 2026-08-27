@@ -30,10 +30,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          # python3-rpm: tito imports the rpm Python module
-          sudo apt-get install -y rpm rpm-build python3-rpm python3-pip git
-          pip install --user tito
+          sudo apt update
+          sudo apt install -y rpm make python3-pip
+          pip install --user copr-cli
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Set up Git identity
