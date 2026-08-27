@@ -1,5 +1,5 @@
 Name: atlas-rt
-Version: v0.1.1
+Version: 0.1.3
 Release: 1%{?dist}
 License: MIT
 Summary: An overlay type system for shell pipelines
@@ -40,3 +40,8 @@ ln -s rt %{buildroot}%{_bindir}/rti
 
 #-- CHANGELOG -----------------------------------------------------------------#
 %changelog
+* Thu Aug 27 2026 davidkovach-fuentes <davidkovach-fuentes2027@u.northwestern.edu> 0.1.3-1
+- test workflow (davidkovach-fuentes2027@u.northwestern.edu)
+- prepare for PR (davidkovach-fuentes2027@u.northwestern.edu)
+- test for webhook rebuild (davidkovach-fuentes2027@u.northwestern.edu)
+
