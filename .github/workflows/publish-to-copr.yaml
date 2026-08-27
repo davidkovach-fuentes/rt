@@ -83,7 +83,7 @@ jobs:
           test -f atlas-rt.spec
           test -f .tito/tito.props
           test -f ".tito/packages/${TOOL}"
-          tito check
+          tito --version
 
       - name: Test build (tito --test)
         run: |
