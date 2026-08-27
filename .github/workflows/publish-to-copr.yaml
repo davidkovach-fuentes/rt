@@ -36,11 +36,6 @@ jobs:
           dnf install -y tito copr-cli
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Set up Git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
       - name: Tito check
         run: |
           tito --version
