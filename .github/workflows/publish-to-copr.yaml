@@ -30,17 +30,19 @@ jobs:
           fetch-tags: true
           persist-credentials: true
 
+      # fedora:latest has no git; install before any git/tito command.
+      - name: Install dependencies
+        run: |
+          dnf install -y rpm-build git tito
+          tito --version
+
+      # Container is root; checkout files are owned by the runner user.
       - name: Trust git worktree
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "*"
           git rev-parse --show-toplevel
           git status -sb
-
-      - name: Install dependencies
-        run: |
-          dnf install -y rpm-build git tito
-          tito --version
 
       - name: Set up Git identity
         run: |
