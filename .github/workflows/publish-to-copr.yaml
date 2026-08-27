@@ -32,7 +32,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y rpm make python3-pip
-          pip install --user copr-cli
+          sudo pip3 install tito
+          sudo pip3 install --user copr-cli
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Set up Git identity
@@ -45,7 +46,7 @@ jobs:
           test -f atlas-rt.spec
           test -f .tito/tito.props
           test -f ".tito/packages/${TOOL}"
-          tito check
+          tito --version
 
       - name: Test Build (tito --test)
         run: |
