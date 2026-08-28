@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Package version (e.g. 0.1.2 or v0.1.2). Required for manual runs.'
+        description: 'Package version. Required for manual runs.'
         required: true
         type: string
 
@@ -28,7 +28,7 @@ jobs:
         working-directory: ${{ github.workspace }}
 
     steps:
-      - name: Install git
+      - name: Install Git
         working-directory: /
         run: dnf install -y git
 
@@ -40,11 +40,11 @@ jobs:
           fetch-tags: true
           persist-credentials: true
 
-      - name: Install packaging tools
+      - name: Install Tito
         working-directory: /
         run: dnf install -y rpm-build tito
 
-      - name: Configure git
+      - name: Configure Git
         run: |
           set -eux
           git config --global --add safe.directory "${{ github.workspace }}"
@@ -54,48 +54,48 @@ jobs:
           git fetch origin --tags --force
           git status -sb
           git pull origin fpm-ubuntu-fedora
+          # TODO: git pull origin XYZ
           tito --version
 
-      - name: Ensure baseline tito tag exists
+      - name: Ensure Tito Tag Exists
         run: |
           set -euo pipefail
           pkg_file=".tito/packages/${TOOL}"
           claimed="$(awk '{print $1; exit}' "$pkg_file")"
           tag="${TOOL}-${claimed}"
-          echo "packages claims ${tag}"
+          echo "claim ${tag}"
           git tag -l "${TOOL}-*" | sort -V | tail -20 || true
 
           if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
-            echo "Baseline tag ${tag} present"
+            echo "tag ${tag} present"
             exit 0
           fi
 
           latest="$(git tag -l "${TOOL}-*" | sort -V | tail -1 || true)"
           if [[ -n "${latest}" ]]; then
-            echo "Missing ${tag}; aligning packages to existing ${latest}"
+            echo "missing ${tag}; aligning packages to existing ${latest}"
             echo "${latest#${TOOL}-} ./" > "$pkg_file"
             exit 0
           fi
 
           root="$(git rev-list --max-parents=0 HEAD | tail -1)"
-          echo "Seeding local baseline tag ${tag} at ${root}"
           git tag "${tag}" "${root}"
 
-      - name: Tito check
+      - name: Tito Check
         run: |
           test -f atlas-rt.spec
           test -f .tito/tito.props
           test -f ".tito/packages/${TOOL}"
           tito --version
 
-      - name: Test build (tito --test)
+      - name: Test Build (tito --test)
         run: |
           OUTDIR=/tmp/tito-test
           mkdir -p "$OUTDIR"
           tito build --test --rpm --output="$OUTDIR"
           ls -la "$OUTDIR"
 
-      - name: Resolve version
+      - name: Resolve Version
         id: ver
         run: |
           set -euo pipefail
@@ -109,27 +109,28 @@ jobs:
           raw="${raw#atlas-rt-}"
           raw="${raw%%-*}"
           if [[ ! "$raw" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "error: expected semver from git tag (e.g. v0.1.2), got '${raw}'" >&2
+            echo "error: bad format, got '${raw}'" >&2
             exit 1
           fi
           echo "version=${raw}" >> "$GITHUB_OUTPUT"
-          echo "resolved package version: ${raw}"
+          echo "package version: ${raw}"
 
-      - name: Tito tag
+      - name: Tito Tag
         run: |
           ver='${{ steps.ver.outputs.version }}'
           tito_tag="${TOOL}-${ver}-1"
           if git rev-parse -q --verify "refs/tags/${tito_tag}" >/dev/null; then
-            echo "Tito tag ${tito_tag} already exists; nothing to do."
+            echo "tag ${tito_tag} already exists"
             exit 0
           fi
           tito tag --use-version="${ver}" --accept-auto-changelog
 
-      - name: Show new tag
+      - name: Show New tag
         run: |
           cat ".tito/packages/${TOOL}"
           git describe --tags --abbrev=0
           git log -1 --oneline
 
-      - name: Push commit and tag
+      - name: Push Commit and Tag
         run: git push --follow-tags origin HEAD:fpm-ubuntu-fedora
+        # TODO: git push --follow-tags origin HEAD:XYZ

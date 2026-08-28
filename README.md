@@ -215,7 +215,7 @@ Requires [Docker](https://docs.docker.com/get-docker/).
 rt is hosted on Fedora Copr. You can install from the official [repo](TODO):
 
 ```sh
-dnf copr enable atlas-brown/atlas-rt 
+dnf copr enable atlas-brown/rt 
 sudo dnf install -y atlas-rt
 ```
 

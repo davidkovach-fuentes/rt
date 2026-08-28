@@ -26,13 +26,13 @@ jobs:
           ref: ${{ github.event.release.tag_name || github.sha }}
           fetch-depth: 1
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install -y ruby ruby-dev build-essential rpm rpm2cpio make
           sudo gem install --no-document fpm
 
-      - name: Build packages
+      - name: Build Packages
         run: |
           VERSION="${VERSION#v}" \
           REPO="${{ github.repository }}" \
@@ -49,7 +49,7 @@ jobs:
           echo "SHA256=$SHA256" >> "$GITHUB_ENV"
           echo "VER=$VER" >> "$GITHUB_ENV"
 
-      - name: Print version URL SHA
+      - name: Print Version URL SHA
         run: |
           echo "VERSION=$VER"
           echo "URL=$URL"
