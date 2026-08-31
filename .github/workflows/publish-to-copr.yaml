@@ -53,8 +53,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin --tags --force
           git status -sb
-          git pull origin fpm-ubuntu-fedora
-          # TODO: git pull origin XYZ
+          # TODO: git pull origin desired-branch
           tito --version
 
       - name: Ensure Tito Tag Exists
@@ -125,12 +124,12 @@ jobs:
           fi
           tito tag --use-version="${ver}" --accept-auto-changelog
 
-      - name: Show New tag
+      - name: Show New Tag
         run: |
           cat ".tito/packages/${TOOL}"
           git describe --tags --abbrev=0
           git log -1 --oneline
 
       - name: Push Commit and Tag
-        run: git push --follow-tags origin HEAD:fpm-ubuntu-fedora
-        # TODO: git push --follow-tags origin HEAD:XYZ
+        run: echo "Done"
+        # TODO: git push --follow-tags origin HEAD:desired-branch
