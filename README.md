@@ -197,6 +197,17 @@ brew install rt
 
 Requires [Docker](https://docs.docker.com/get-docker/).
 
+### Fedora
+
+rt is hosted on Fedora Copr. You can install from the official [repo](TODO):
+
+```sh
+dnf copr enable atlas-brown/rt 
+sudo dnf install -y atlas-rt
+```
+
+Requires [Docker](https://docs.docker.com/get-docker/).
+
 ### Build from source
 
 If you'd rather run natively, Rt uses [uv](https://docs.astral.sh/uv/) for

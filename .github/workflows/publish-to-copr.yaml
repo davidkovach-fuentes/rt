@@ -1,0 +1,135 @@
+name: Publish to Copr
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version. Required for manual runs.'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  TOOL: atlas-rt
+
+jobs:
+  tito-tag:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - name: Install Git
+        working-directory: /
+        run: dnf install -y git
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: true
+
+      - name: Install Tito
+        working-directory: /
+        run: dnf install -y rpm-build tito
+
+      - name: Configure Git
+        run: |
+          set -eux
+          git config --global --add safe.directory "${{ github.workspace }}"
+          git config --global --add safe.directory "*"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin --tags --force
+          git status -sb
+          # TODO: git pull origin desired-branch
+          tito --version
+
+      - name: Ensure Tito Tag Exists
+        run: |
+          set -euo pipefail
+          pkg_file=".tito/packages/${TOOL}"
+          claimed="$(awk '{print $1; exit}' "$pkg_file")"
+          tag="${TOOL}-${claimed}"
+          echo "claim ${tag}"
+          git tag -l "${TOOL}-*" | sort -V | tail -20 || true
+
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "tag ${tag} present"
+            exit 0
+          fi
+
+          latest="$(git tag -l "${TOOL}-*" | sort -V | tail -1 || true)"
+          if [[ -n "${latest}" ]]; then
+            echo "missing ${tag}; aligning packages to existing ${latest}"
+            echo "${latest#${TOOL}-} ./" > "$pkg_file"
+            exit 0
+          fi
+
+          root="$(git rev-list --max-parents=0 HEAD | tail -1)"
+          git tag "${tag}" "${root}"
+
+      - name: Tito Check
+        run: |
+          test -f atlas-rt.spec
+          test -f .tito/tito.props
+          test -f ".tito/packages/${TOOL}"
+          tito --version
+
+      - name: Test Build (tito --test)
+        run: |
+          OUTDIR=/tmp/tito-test
+          mkdir -p "$OUTDIR"
+          tito build --test --rpm --output="$OUTDIR"
+          ls -la "$OUTDIR"
+
+      - name: Resolve Version
+        id: ver
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            raw='${{ inputs.version }}'
+          else
+            # push on v* tag (e.g. v0.1.2)
+            raw='${{ github.ref_name }}'
+          fi
+          raw="${raw#v}"
+          raw="${raw#atlas-rt-}"
+          raw="${raw%%-*}"
+          if [[ ! "$raw" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "error: bad format, got '${raw}'" >&2
+            exit 1
+          fi
+          echo "version=${raw}" >> "$GITHUB_OUTPUT"
+          echo "package version: ${raw}"
+
+      - name: Tito Tag
+        run: |
+          ver='${{ steps.ver.outputs.version }}'
+          tito_tag="${TOOL}-${ver}-1"
+          if git rev-parse -q --verify "refs/tags/${tito_tag}" >/dev/null; then
+            echo "tag ${tito_tag} already exists"
+            exit 0
+          fi
+          tito tag --use-version="${ver}" --accept-auto-changelog
+
+      - name: Show New Tag
+        run: |
+          cat ".tito/packages/${TOOL}"
+          git describe --tags --abbrev=0
+          git log -1 --oneline
+
+      - name: Push Commit and Tag
+        run: echo "Done"
+        # TODO: git push --follow-tags origin HEAD:desired-branch
