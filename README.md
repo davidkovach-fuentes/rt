@@ -191,50 +191,41 @@ Make sure `~/.local/bin` is on your `PATH`. Requires [Docker](https://docs.docke
 ### brew
 
 ```sh
-<<<<<<< HEAD
 brew tap atlas-brown/tap
 brew install rt
 ```
 
 Requires [Docker](https://docs.docker.com/get-docker/).
 
+### Ubuntu
+```sh
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt_0.1.1_all.deb
+sudo apt install ./rt_0.1.1_all.deb
+```
+
+with `dpkg`:
+```sh
+dpkg -i rt_0.1.1_all.deb
+```
+
+Requires [Docker](https://docs.docker.com/get-docker/).
+
 ### Fedora
 
-rt is hosted on Fedora Copr. You can install from the official [repo](TODO):
+rt is hosted on Fedora Copr. You can install from the official [repo](https://copr.fedorainfracloud.org/coprs/dvkofu/atlas-rt/):
 
 ```sh
-dnf copr enable atlas-brown/rt 
+dnf copr enable atlas-brown/atlas-rt 
 sudo dnf install -y atlas-rt
 ```
 
-=======
-brew install atlas-brown/rt/rt
-```
-
-This installs thin `rt` and `rti` wrappers that run Rt in Docker.
-Requires [Docker](https://docs.docker.com/get-docker/).
-
-### deb
-
-Download the `.deb` from [GitHub Releases](https://github.com/atlas-brown/rt/releases), then:
+You can also install the latest archive directly from GitHub:
 
 ```sh
-sudo apt install ./rt_*.deb
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1.noarch.rpm
+sudo dnf install -y ./rt-0.1.1.noarch.rpm
 ```
 
-This installs thin `rt` and `rti` wrappers that run Rt in Docker.
-Requires [Docker](https://docs.docker.com/get-docker/).
-
-### rpm
-
-Download the `.rpm` from [GitHub Releases](https://github.com/atlas-brown/rt/releases), then:
-
-```sh
-sudo dnf install ./rt-*.rpm
-```
-
-This installs thin `rt` and `rti` wrappers that run Rt in Docker.
->>>>>>> 6fd590eb (initial support for brew/ubuntu/fedora)
 Requires [Docker](https://docs.docker.com/get-docker/).
 
 ### Build from source
