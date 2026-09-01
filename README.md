@@ -197,6 +197,19 @@ brew install rt
 
 Requires [Docker](https://docs.docker.com/get-docker/).
 
+### Ubuntu
+```sh
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt_0.1.1_all.deb
+sudo apt install ./rt_0.1.1_all.deb
+```
+
+with `dpkg`:
+```sh
+dpkg -i rt_0.1.1_all.deb
+```
+
+Requires [Docker](https://docs.docker.com/get-docker/).
+
 ### Fedora
 
 rt is hosted on Fedora Copr. You can install from the official [repo](TODO):
@@ -204,6 +217,13 @@ rt is hosted on Fedora Copr. You can install from the official [repo](TODO):
 ```sh
 dnf copr enable atlas-brown/rt 
 sudo dnf install -y atlas-rt
+```
+
+You can also install the latest archive directly from GitHub:
+
+```sh
+curl -fsSLO https://github.com/atlas-brown/rt/releases/latest/download/rt-0.1.1.noarch.rpm
+sudo dnf install -y ./rt-0.1.1.noarch.rpm
 ```
 
 Requires [Docker](https://docs.docker.com/get-docker/).
