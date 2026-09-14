@@ -66,7 +66,6 @@
       license = lib.licenses.mit;
       mainProgram = "rt";
       platforms = lib.platforms.unix;
-      # version can be left out or set to rt-version since uv handles the actual egg-info versioning
       version = rt-version;
     };
 
